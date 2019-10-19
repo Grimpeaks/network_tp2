@@ -13,4 +13,9 @@ class GameObject
 {
 public:
 
+
+private:
+	//virtual void Destroy();
+	//virtual void Write(&OutputStream);
+	//virtual void Read(&InputStream);
 };
