@@ -24,4 +24,7 @@ private:
 		float z;
 		float w;
 	};
+
+	virtual void Write(OutputStream&) override;
+	virtual void Read(InputStream&) override;
 };

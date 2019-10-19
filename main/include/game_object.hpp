@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include "streams.hpp"
+
 using ReplicationClassID = uint32_t;
 
 #define REPLICATED(id,className)                                    \
@@ -15,7 +17,9 @@ public:
 
 
 private:
-	//virtual void Destroy();
-	//virtual void Write(&OutputStream);
-	//virtual void Read(&InputStream);
+
+	REPLICATED(0, GameObject)
+	virtual void Destroy();
+	virtual void Write(OutputStream&);
+	virtual void Read(InputStream&);
 };
