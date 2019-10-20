@@ -5,7 +5,8 @@ set(replication_sources src/main.cpp
                         src/streams.cpp
 						src/player.cpp
 						src/enemy.cpp
-						src/linking_context.cpp)
+						src/linking_context.cpp
+						src/ClassRegistry.cpp)
 
 include_directories(include)
 set(replication_headers include/game_object.hpp
@@ -13,7 +14,8 @@ set(replication_headers include/game_object.hpp
                         include/streams.hpp
                         include/player.hpp
                         include/enemy.hpp
-						include/linking_context.hpp)
+						include/linking_context.hpp
+						include/ClassRegistry.hpp)
 
 add_executable(tp2 ${replication_sources} ${replication_headers})
 target_link_libraries(tp2 PUBLIC uvw_interface GSL)
