@@ -4,27 +4,25 @@
 
 #include "game_object.hpp"
 
-class Player : GameObject
+class Enemy : GameObject
 {
 public:
 
 
 private:
-	std::string name;
-	struct position
-	{
-		float x;
-		float y;
-		float z;
-	};
-	struct rotation
-	{
-		float x;
-		float y;
-		float z;
-		float w;
-	};
+	REPLICATED('ENEM', Enemy)
 
-	virtual void Write(OutputStream&) override;
-	virtual void Read(InputStream&) override;
+	std::string name;
+	position enemyPos;
+	rotation enemyRot;
+
+	void Write(OutputStream&) override;
+	void Read(InputStream&) override;
+	uint32_t packFloatPos(float);
+	uint16_t packFloatRot(float);
+	float unpackFloatPos(uint32_t);
+	float unpackFloatRot(uint16_t);
+	compRotation packQuaternion(rotation);
+	rotation unpackRotation(compRotation);
+	uint32_t bytesToInt32(gsl::span<std::byte>);
 };

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <cstddef>
+#include <math.h>
 
 #include "game_object.hpp"
 
@@ -10,21 +13,21 @@ public:
 
 
 private:
-	std::string name;
-	struct position
-	{
-		float x;
-		float y;
-		float z;
-	};
-	struct rotation
-	{
-		float x;
-		float y;
-		float z;
-		float w;
-	};
+	Player();
 
-	virtual void Write(OutputStream&) override;
-	virtual void Read(InputStream&) override;
+	REPLICATED('PLAY', Player)
+
+	std::string name;
+	position playerPos;
+	rotation playerRot;
+
+	void Write(OutputStream&) override;
+	void Read(InputStream&) override;
+	uint32_t packFloatPos(float);
+	uint16_t packFloatRot(float);
+	float unpackFloatPos(uint32_t);
+	float unpackFloatRot(uint16_t);
+	compRotation packQuaternion(rotation);
+	rotation unpackRotation(compRotation);
+	uint32_t bytesToInt32(gsl::span<std::byte>);
 };
