@@ -34,7 +34,7 @@ struct compRotation
 	uint16_t a;
 	uint16_t b;
 	uint16_t c;
-	uint16_t i;
+	uint8_t i;
 };
 
 class Player : GameObject

@@ -3,8 +3,6 @@
 void Enemy::Write(OutputStream& outStream)
 {
 	// ENVOI DES DONNÉES
-	uint8_t dimension;
-
 	// Envoi du nom
 	outStream.WriteStr(name);
 
@@ -12,110 +10,36 @@ void Enemy::Write(OutputStream& outStream)
 	compPosition compressedPosition;
 	compressedPosition.x = packFloatPos(enemyPos.x);
 	compressedPosition.y = packFloatPos(enemyPos.y);
-	compressedPosition.z = packFloatPos(enemyPos.z);
-
-	dimension = 3;
-	outStream.Write<uint8_t>(dimension);
-	outStream.Write(&compressedPosition.x, dimension);
-	outStream.Write<uint8_t>(dimension);
-	outStream.Write(&compressedPosition.y, dimension);
-	outStream.Write<uint8_t>(dimension);
-	outStream.Write(&compressedPosition.z, dimension);
+	compressedPosition.z = packFloatPos(enemyPos.z);;
+	outStream.Write<uint32_t>(compressedPosition.x);
+	outStream.Write<uint32_t>(compressedPosition.y);
+	outStream.Write<uint32_t>(compressedPosition.z);
 
 	// Envoi de la rotation
 	compRotation compressedRotation = packQuaternion(enemyRot);
-
-	dimension = 3;
-	outStream.Write<uint8_t>(dimension);
-	outStream.Write(&compressedRotation.a, dimension);
-	outStream.Write<uint8_t>(dimension);
-	outStream.Write(&compressedRotation.b, dimension);
-	outStream.Write<uint8_t>(dimension);
-	outStream.Write(&compressedRotation.c, dimension);
-	dimension = 1;
-	outStream.Write<uint8_t>(dimension);
-	outStream.Write(&compressedRotation.i, dimension);
+	outStream.Write<uint16_t>(compressedRotation.a);
+	outStream.Write<uint16_t>(compressedRotation.b);
+	outStream.Write<uint16_t>(compressedRotation.c);
+	outStream.Write<uint8_t>(compressedRotation.i);
 }
 
 void Enemy::Read(InputStream& inStream)
 {
-	if (inStream.Read(1)[0] == static_cast<std::byte>(PacketType::Sync))
-	{
-		uint8_t dimension;
-		gsl::span<std::byte> readBytes;
+	// Lecture du nom
+	name = inStream.ReadStr();
 
-		// Lecture du nom
-		name = inStream.ReadStr();
+	// Lecture de la position
+	enemyPos.x = unpackFloatPos(inStream.Read<uint32_t>());
+	enemyPos.y = unpackFloatPos(inStream.Read<uint32_t>());
+	enemyPos.z = unpackFloatPos(inStream.Read<uint32_t>());
 
-		// Lecture de la position
-		dimension = static_cast<std::uint8_t>(inStream.Read(1)[0]);
-		readBytes = inStream.Read(dimension);
-		enemyPos.x = unpackFloatPos(bytesToInt32(readBytes));
-
-		dimension = static_cast<std::uint8_t>(inStream.Read(1)[0]);
-		readBytes = inStream.Read(dimension);
-		enemyPos.y = unpackFloatPos(bytesToInt32(readBytes));
-
-		dimension = static_cast<std::uint8_t>(inStream.Read(1)[0]);
-		readBytes = inStream.Read(dimension);
-		enemyPos.z = unpackFloatPos(bytesToInt32(readBytes));
-
-		// Lecture de la rotation
-		compRotation compressedRotation;
-		const auto identityCallback = [](std::byte b) { return b; };
-
-		dimension = static_cast<std::uint8_t>(inStream.Read(1)[0]);
-		readBytes = inStream.Read(dimension);
-		compressedRotation.a = bytesToInt32(readBytes);
-
-		dimension = static_cast<std::uint8_t>(inStream.Read(1)[0]);
-		readBytes = inStream.Read(dimension);
-		compressedRotation.b = bytesToInt32(readBytes);
-
-		dimension = static_cast<std::uint8_t>(inStream.Read(1)[0]);
-		readBytes = inStream.Read(dimension);
-		compressedRotation.c = bytesToInt32(readBytes);
-
-		dimension = static_cast<std::uint8_t>(inStream.Read(1)[0]);
-		readBytes = inStream.Read(dimension);
-		compressedRotation.i = static_cast<char>(readBytes[0]);
-
-		enemyRot = unpackRotation(compressedRotation);
-
-		//si Obj Id existe
-
-		//sinon
-
-	}
-}
-
-uint32_t Enemy::bytesToInt32(gsl::span<std::byte> bytes)
-{
-	uint32_t val = 0;
-	std::for_each(bytes.begin(), bytes.end(), [&val](std::byte byteToPush)
-		{
-			val << static_cast<uint32_t>(byteToPush);
-		}
-	);
-	return val;
-}
-
-float Enemy::unpackFloatPos(uint32_t val)
-{
-	int signedVal;
-	signedVal = val - 50000;
-	float floatVal;
-	floatVal = (float)signedVal / 1000.0;
-	return floatVal;
-}
-
-float Enemy::unpackFloatRot(uint16_t val)
-{
-	int signedVal;
-	signedVal = val - 1000;
-	float floatVal;
-	floatVal = (float)signedVal / 1000.0;
-	return floatVal;
+	// Lecture de la rotation
+	compRotation compressedRotation;
+	compressedRotation.a = inStream.Read<uint16_t>();
+	compressedRotation.b = inStream.Read<uint16_t>();
+	compressedRotation.c = inStream.Read<uint16_t>();
+	compressedRotation.i = inStream.Read<uint8_t>();
+	enemyRot = unpackRotation(compressedRotation);
 }
 
 uint32_t Enemy::packFloatPos(float floatVal)
@@ -127,6 +51,15 @@ uint32_t Enemy::packFloatPos(float floatVal)
 	return compression;
 }
 
+float Enemy::unpackFloatPos(uint32_t val)
+{
+	int signedVal;
+	signedVal = val - 50000;
+	float floatVal;
+	floatVal = (float)signedVal / 1000.0;
+	return floatVal;
+}
+
 uint16_t Enemy::packFloatRot(float floatVal)
 {
 	int compression = floatVal * 1000;
@@ -134,6 +67,16 @@ uint16_t Enemy::packFloatRot(float floatVal)
 	else if (compression < -1000) { compression = -1000; }
 	compression += 1000;
 	return compression;
+}
+
+
+float Enemy::unpackFloatRot(uint16_t val)
+{
+	int signedVal;
+	signedVal = val - 1000;
+	float floatVal;
+	floatVal = (float)signedVal / 1000.0;
+	return floatVal;
 }
 
 compRotation Enemy::packQuaternion(rotation structQuat)
