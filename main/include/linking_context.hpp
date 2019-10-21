@@ -6,24 +6,29 @@
 #include "game_object.hpp"
 
 
-using idObjet = int;
+using networkID = uint32_t;
 using gameObjt = std::shared_ptr<GameObject>;
 
 class LinkingContext
 {
 public:
-	
+	void AddTo_Context(gameObjt gm, networkID i = -1);
+
+	void SupprFrom_List(gameObjt gm);
+
+	std::optional<networkID> GetNetworkId(gameObjt inGameObject);
+
+	std::optional<gameObjt> GetGameObject(networkID inNetworkId);
 	
 private:
-	std::map<idObjet, gameObjt> idToObjptr;
-	std::map<gameObjt, idObjet> objptrToId;
-	int indice = idToObjptr.size + 1;
 
-	void AddTo_Context(gameObjt);
+	std::map<networkID, gameObjt> idToObjptr;
+	std::map<gameObjt, networkID> objptrToId;
+	
+	int indice = 0;
+	
 
-	void SupprFrom_List(gameObjt);
-
-	void AddTo_List(gameObjt);
+	
 	
 
 };

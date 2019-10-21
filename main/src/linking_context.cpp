@@ -1,27 +1,53 @@
 #include "linking_context.hpp"
 
-
-void LinkingContext::AddTo_Context(gameObjt)
+// Question 3 et 5, lors de l'appel de la fonction, si on précise le paramètre i, on le stock dans la map en tant que networkId. Sinon on en créé un nouveau
+void LinkingContext::AddTo_Context(gameObjt gm, networkID i)
 {
+	if(i == -1)
+	{
+		i = indice + 1;
+		this->indice += 1;
 
-}
-
-void LinkingContext::SupprFrom_List(gameObjt)
-{
-
-}
-
-void LinkingContext::AddTo_List(gameObjt g) {
-	int i = indice;
-	//bool trouve = false;
-	//idToObjptr[i] = g;
-
-	//if (idToObjptr::iterator it = idToObjptr.find(g) {
-	idToObjptr.insert(std::pair<int, gameObjt>(i, g));
-	objptrToId.insert(std::pair<gameObjt, int>(g, i));
-
-	//}
+		while (idToObjptr.find(i) != idToObjptr.end())
+		{
+			i += 1;			
+		}
+	}
+	
+	idToObjptr.insert(std::pair<networkID, gameObjt>(i, gm));
+	objptrToId.insert(std::pair<gameObjt, networkID>(gm, i));
 	
 }
+ 
+void LinkingContext::SupprFrom_List(gameObjt gm)
+{
+	idToObjptr.erase(objptrToId.at(gm));
+	objptrToId.erase(gm);
+	this->indice -= 1;
+
+}
+
+std::optional<networkID> LinkingContext::GetNetworkId(gameObjt inGameObject)
+{
+	auto res = objptrToId.find(inGameObject);
+
+	if (res != objptrToId.end()) 
+	{ 
+		return res->second; 
+	}
+	return {};
+}
 
 	
+std::optional<gameObjt> LinkingContext::GetGameObject(networkID inNetworkId)
+{
+
+	auto res = idToObjptr.find(inNetworkId);
+
+	if (res != idToObjptr.end())
+	{
+		return res->second;
+	}
+
+	return {};	
+}
