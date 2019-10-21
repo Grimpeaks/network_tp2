@@ -43,7 +43,7 @@ public:
 
 
 private:
-	REPLICATED('PLAY', Player) // ???????????
+	REPLICATED('PLAY', Player)
 
 	std::string name;
 	position playerPos;
@@ -56,7 +56,6 @@ private:
 	float unpackFloatPos(uint32_t);
 	float unpackFloatRot(uint16_t);
 	compRotation packQuaternion(rotation);
-	rotation  Player::unpackRotation(compRotation);
+	rotation unpackRotation(compRotation);
 	uint32_t bytesToInt32(gsl::span<std::byte>);
-	std::vector<std::byte> spanToVector(gsl::span<std::byte>);
 };
