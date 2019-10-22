@@ -12,17 +12,17 @@ public:
 private:
 	REPLICATED('ENEM', Enemy)
 
-	std::string name;
-	position enemyPos;
-	rotation enemyRot;
+	std::string name = "NoNameEnemy";
+	position enemyPos = { 0,0,0 };
+	rotation enemyRot = { 0,0,0,0 };
 
 	void Write(OutputStream&) override;
 	void Read(InputStream&) override;
+
 	uint32_t packFloatPos(float);
 	uint16_t packFloatRot(float);
 	float unpackFloatPos(uint32_t);
 	float unpackFloatRot(uint16_t);
-	compRotation packQuaternion(rotation);
+	compRotation packRotation(rotation);
 	rotation unpackRotation(compRotation);
-	uint32_t bytesToInt32(gsl::span<std::byte>);
 };

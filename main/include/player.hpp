@@ -17,17 +17,18 @@ private:
 
 	REPLICATED('PLAY', Player)
 
-	std::string name;
-	position playerPos;
-	rotation playerRot;
+	std::string name = "NoNamePlayer";
+	position playerPos = { 0,0,0 };
+	rotation playerRot = { 0,0,0,0 };
 
 	void Write(OutputStream&) override;
 	void Read(InputStream&) override;
+
 	uint32_t packFloatPos(float);
 	uint16_t packFloatRot(float);
 	float unpackFloatPos(uint32_t);
 	float unpackFloatRot(uint16_t);
-	compRotation packQuaternion(rotation);
+	compRotation packRotation(rotation);
 	rotation unpackRotation(compRotation);
-	uint32_t bytesToInt32(gsl::span<std::byte>);
+	//uint32_t bytesToInt32(gsl::span<std::byte>);
 };
