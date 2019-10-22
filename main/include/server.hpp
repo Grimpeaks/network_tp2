@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <uvw.hpp>
-#include <memory>
+//#include <memory>
 #include <vector>
 
 class Server
@@ -15,6 +15,6 @@ private:
 	std::shared_ptr<uvw::TCPHandle> m_tcp = nullptr;
 	std::vector<std::shared_ptr<uvw::TCPHandle>> m_clients;
 
-	void listen(uvw::Loop& loop, std::string, int);
+	void listen(std::string, int);
 	void Send(std::shared_ptr<uint8_t>, size_t);
 };
