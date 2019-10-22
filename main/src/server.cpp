@@ -16,15 +16,15 @@ void Server::listen(std::string IP, int port) {
 	m_loop = uvw::Loop::getDefault();
 	m_tcp = m_loop->resource<uvw::TCPHandle>();
 
-	m_tcp->on<uvw::ErrorEvent>([](const uvw::ErrorEvent&, uvw::TCPHandle&) { std::cout << "An error occured" << std::endl; });
+	m_tcp->on<uvw::ErrorEvent>([](const uvw::ErrorEvent&, uvw::TCPHandle&) { std::cout << "something went wrong" << std::endl; });
 
-	m_tcp->on<uvw::ListenEvent>([this](const uvw::ListenEvent&, uvw::TCPHandle& srv) {
+	m_tcp->on<uvw::ListenEvent>([](const uvw::ListenEvent&, uvw::TCPHandle& srv) {
 		std::shared_ptr<uvw::TCPHandle> client = srv.loop().resource<uvw::TCPHandle>();
-		client->on<uvw::CloseEvent>([ptr = srv.shared_from_this()](const uvw::CloseEvent&, uvw::TCPHandle&) { ptr->close(); });
 		client->once<uvw::EndEvent>([](const uvw::EndEvent&, uvw::TCPHandle& client) { client.close(); });
+		client->on<uvw::DataEvent>([](const uvw::DataEvent&, uvw::TCPHandle&) { /* data received */ });
 		srv.accept(*client);
-		m_clients.push_back(client);
-		std::cout << "Listen" << std::endl;
+		std::cout << "something went !" << std::endl;
+		client->read();
 		});
 
 	m_tcp->bind(IP, port);
