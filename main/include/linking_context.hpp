@@ -27,8 +27,4 @@ private:
 	
 	int indice = 0;
 	
-
-	
-	
-
 };

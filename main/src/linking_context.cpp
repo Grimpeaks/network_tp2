@@ -13,18 +13,15 @@ void LinkingContext::AddTo_Context(gameObjt gm, networkID i)
 			i += 1;			
 		}
 	}
-	
 	idToObjptr.insert(std::pair<networkID, gameObjt>(i, gm));
 	objptrToId.insert(std::pair<gameObjt, networkID>(gm, i));
-	
-}
+	}
  
 void LinkingContext::SupprFrom_List(gameObjt gm)
 {
 	idToObjptr.erase(objptrToId.at(gm));
 	objptrToId.erase(gm);
 	this->indice -= 1;
-
 }
 
 std::optional<networkID> LinkingContext::GetNetworkId(gameObjt inGameObject)
@@ -41,7 +38,6 @@ std::optional<networkID> LinkingContext::GetNetworkId(gameObjt inGameObject)
 	
 std::optional<gameObjt> LinkingContext::GetGameObject(networkID inNetworkId)
 {
-
 	auto res = idToObjptr.find(inNetworkId);
 
 	if (res != idToObjptr.end())
