@@ -21,6 +21,13 @@ int main(int argc, char* argv[])
 	else if (programType == "server")
 	{
 		Server tcpServer(IP, port);
+
+		//debug
+		std::cin.ignore();
+		std::array<uint8_t, 20> msgArray = { "Message trop cool" };
+		std::uint8_t* message = msgArray.data();
+		tcpServer.Send(message, 20);
+		//debugEnd
 	}
 	else
 	{
