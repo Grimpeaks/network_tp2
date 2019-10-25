@@ -52,15 +52,17 @@ enum class PacketType : PacketTypeID
 	Bye = 0x02,
 	PacketType_Max
 };
+//
 
 class GameObject
 {
 public:
-
-
-private:
 	REPLICATED('GOBJ', GameObject)
+
 	virtual void Destroy();
 	virtual void Write(OutputStream&);
 	virtual void Read(InputStream&);
+
+private:
+	
 };

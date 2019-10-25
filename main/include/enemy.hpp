@@ -7,17 +7,14 @@
 class Enemy : GameObject
 {
 public:
-
+	REPLICATED('ENEM', Enemy)
+	void Write(OutputStream&) override;
+	void Read(InputStream&) override;
 
 private:
-	REPLICATED('ENEM', Enemy)
-
 	std::string name = "NoNameEnemy";
 	position enemyPos = { 0,0,0 };
 	rotation enemyRot = { 0,0,0,0 };
-
-	void Write(OutputStream&) override;
-	void Read(InputStream&) override;
 
 	uint32_t packFloatPos(float);
 	uint16_t packFloatRot(float);

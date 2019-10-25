@@ -10,19 +10,16 @@
 class Player : GameObject
 {
 public:
-
+	REPLICATED('PLAY', Player)
+	void Write(OutputStream&) override;
+	void Read(InputStream&) override;
 
 private:
 	Player();
 
-	REPLICATED('PLAY', Player)
-
 	std::string name = "NoNamePlayer";
 	position playerPos = { 0,0,0 };
 	rotation playerRot = { 0,0,0,0 };
-
-	void Write(OutputStream&) override;
-	void Read(InputStream&) override;
 
 	uint32_t packFloatPos(float);
 	uint16_t packFloatRot(float);

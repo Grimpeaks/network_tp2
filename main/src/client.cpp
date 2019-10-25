@@ -17,6 +17,7 @@ Client::~Client()
 	if (m_ClientThread != nullptr && m_ClientThread->joinable()) {
 		m_ClientThread->join();
 	}
+	m_loop->stop();
 }
 
 void Client::conn(std::string IP, int port) {
@@ -25,13 +26,13 @@ void Client::conn(std::string IP, int port) {
 
 	m_tcp->on<uvw::ErrorEvent>([](const uvw::ErrorEvent&, uvw::TCPHandle&) { std::cout << "Client : Something went wrong" << std::endl; });
 
-	m_tcp->on<uvw::CloseEvent>([this](const uvw::CloseEvent&, uvw::TCPHandle&) { std::cout << "Client : Disconnected" << std::endl; });
-
-	m_tcp->on<uvw::ConnectEvent>([](const uvw::ConnectEvent&, uvw::TCPHandle& tcp) {
-		auto dataWrite = std::unique_ptr<char[]>(new char[2]{ 'b', 'c' });
-		tcp.write(std::move(dataWrite), 2);
+	m_tcp->on<uvw::ConnectEvent>([this](const uvw::ConnectEvent&, uvw::TCPHandle& tcp) {
 		tcp.read();
-		//tcp.close();
+
+		//debug
+		std::cin.ignore();
+		m_tcp->close();
+		//
 		});
 
 	m_tcp->on<uvw::DataEvent>([](const uvw::DataEvent& evt, uvw::TCPHandle&) {
