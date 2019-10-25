@@ -1,30 +1,31 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <cstddef>
+#include <math.h>
 
 #include "game_object.hpp"
 
 class Player : GameObject
 {
 public:
-
+	REPLICATED('PLAY', Player)
+	void Write(OutputStream&) override;
+	void Read(InputStream&) override;
 
 private:
-	std::string name;
-	struct position
-	{
-		float x;
-		float y;
-		float z;
-	};
-	struct rotation
-	{
-		float x;
-		float y;
-		float z;
-		float w;
-	};
+	Player();
 
-	virtual void Write(OutputStream&) override;
-	virtual void Read(InputStream&) override;
+	std::string name = "NoNamePlayer";
+	position playerPos = { 0,0,0 };
+	rotation playerRot = { 0,0,0,0 };
+
+	uint32_t packFloatPos(float);
+	uint16_t packFloatRot(float);
+	float unpackFloatPos(uint32_t);
+	float unpackFloatRot(uint16_t);
+	compRotation packRotation(rotation);
+	rotation unpackRotation(compRotation);
+	//uint32_t bytesToInt32(gsl::span<std::byte>);
 };
