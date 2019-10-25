@@ -138,3 +138,4 @@ $RECYCLE.BIN/
 
 # Visual Studio
 .vs/*
+output/*
