@@ -5,7 +5,8 @@
 #include "streams.hpp"
 
 using ReplicationClassID = uint32_t;
-using PacketTypeID = uint8_t;
+
+
 
 #define REPLICATED(id,className)                                    \
 enum : ReplicationClassID{mClassID = id};                           \
@@ -42,6 +43,8 @@ struct compRotation
 	uint8_t i;
 };
 
+//TODO mettre dans le replication manager !!
+using PacketTypeID = uint8_t;
 enum class PacketType : PacketTypeID
 {
 	Hello = 0x00,
@@ -49,15 +52,17 @@ enum class PacketType : PacketTypeID
 	Bye = 0x02,
 	PacketType_Max
 };
+//
 
 class GameObject
 {
 public:
-
-
-private:
 	REPLICATED('GOBJ', GameObject)
+
 	virtual void Destroy();
 	virtual void Write(OutputStream&);
 	virtual void Read(InputStream&);
+
+private:
+	
 };
