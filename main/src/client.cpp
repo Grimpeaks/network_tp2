@@ -17,7 +17,6 @@ Client::~Client()
 	if (m_ClientThread != nullptr && m_ClientThread->joinable()) {
 		m_ClientThread->join();
 	}
-	m_loop->stop();
 }
 
 void Client::conn(std::string IP, int port) {
@@ -29,10 +28,10 @@ void Client::conn(std::string IP, int port) {
 	m_tcp->on<uvw::ConnectEvent>([this](const uvw::ConnectEvent&, uvw::TCPHandle& tcp) {
 		tcp.read();
 
-		//debug
-		std::cin.ignore();
-		m_tcp->close();
-		//
+		////debug
+		//std::cin.ignore();
+		//m_tcp->close();
+		////
 		});
 
 	m_tcp->on<uvw::DataEvent>([](const uvw::DataEvent& evt, uvw::TCPHandle&) {
