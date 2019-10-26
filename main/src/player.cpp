@@ -28,7 +28,7 @@ void Player::Write(OutputStream& outStream)
 	outStream.Write<uint32_t>(compressedPosition.z);
 
 	// Envoi de la rotation
-	compRotation compressedRotation = packQuaternion(playerRot);
+	compRotation compressedRotation = packRotation(playerRot);
 
 	//dimension = 3;
 	//outStream.Write<uint8_t>(dimension);
@@ -112,6 +112,7 @@ void Player::Read(InputStream& inStream)
 //	return val;
 //}
 
+//compresses and limits between -500 and 500
 uint32_t Player::packFloatPos(float floatVal)
 {
 	int compression = floatVal * 1000;
@@ -130,6 +131,7 @@ float Player::unpackFloatPos(uint32_t val)
 	return floatVal;
 }
 
+//compresses and limits between -1 and 1
 uint16_t Player::packFloatRot(float floatVal)
 {
 	int compression = floatVal * 1000;
@@ -148,7 +150,7 @@ float Player::unpackFloatRot(uint16_t val)
 	return floatVal;
 }
 
-compRotation Player::packQuaternion(rotation structQuat)
+compRotation Player::packRotation(rotation structQuat)
 {
 	compRotation compressedRotation;
 	std::vector<float> quaternion = { structQuat.x, structQuat.y, structQuat.z, structQuat.w };

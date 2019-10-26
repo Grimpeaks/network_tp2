@@ -16,7 +16,7 @@ void Enemy::Write(OutputStream& outStream)
 	outStream.Write<uint32_t>(compressedPosition.z);
 
 	// Envoi de la rotation
-	compRotation compressedRotation = packQuaternion(enemyRot);
+	compRotation compressedRotation = packRotation(enemyRot);
 	outStream.Write<uint16_t>(compressedRotation.a);
 	outStream.Write<uint16_t>(compressedRotation.b);
 	outStream.Write<uint16_t>(compressedRotation.c);
@@ -79,7 +79,7 @@ float Enemy::unpackFloatRot(uint16_t val)
 	return floatVal;
 }
 
-compRotation Enemy::packQuaternion(rotation structQuat)
+compRotation Enemy::packRotation(rotation structQuat)
 {
 	compRotation compressedRotation;
 	std::vector<float> quaternion = { structQuat.x, structQuat.y, structQuat.z, structQuat.w };
