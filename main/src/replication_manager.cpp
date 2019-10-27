@@ -17,34 +17,43 @@ void ReplicationManager::Replicate(OutputStream& stream, std::vector<ptrGameObjt
 }
 
 void ReplicationManager::Replicate(InputStream& stream) {
-	std::unordered_set<ptrGameObjt> set_tmp;
-	ProtocoleID protocol = stream.Read<uint32_t>();
+	std::unordered_set<ptrGameObjt> set_StreamObjs;
+	ProtocoleID protocol = stream.Read<ProtocoleID>();
 	if (protocol == this->m_protocolID) {
 		PacketType type = stream.Read<PacketType>();
-		if (type==PacketType::Sync)
+		if (type == PacketType::Sync)
 		{
 			while (stream.RemainingSize() > 0) {
 				networkID objectID = stream.Read<networkID>();
 				ReplicationClassID classID = stream.Read<ReplicationClassID>();
 				const auto gameO = m_linkingContext.GetGameObject(objectID);
-				if (gameO.has_value()) {
+				if (!gameO.has_value()) {
 					GameObject* game_object = m_classRegistry->Create(classID);
+					m_linkingContext.AddTo_Context(game_object, objectID);
+					game_object->Read(stream);
 					m_set.insert(game_object);
-					set_tmp.insert(game_object);
+					set_StreamObjs.insert(game_object);
 				}
 				else {
 					gameO.value()->Read(stream);
-					set_tmp.insert(gameO.value());
+					set_StreamObjs.insert(gameO.value());
 				}
+			}
 
-			}
-			for (ptrGameObjt ga : m_set) {
-				if (set_tmp.find<ptrGameObjt>(ga) == set_tmp.end()) {
-					m_set.erase(ga);
-					m_linkingContext.SupprFrom_List(ga);
-					ga->Destroy();
-				}
-			}
+			std::vector<ptrGameObjt> removedObjects;
+			std::remove_copy_if(m_set.begin(), m_set.end(), removedObjects.begin(),
+				[set_StreamObjs](ptrGameObjt objPtr)
+				{
+					return (set_StreamObjs.find<ptrGameObjt>(objPtr) != set_StreamObjs.end());
+				});
+
+			std::for_each(removedObjects.begin(), removedObjects.end(),
+				[this](ptrGameObjt objPtr)
+				{
+					m_set.erase(objPtr);
+					m_linkingContext.SupprFrom_List(objPtr);
+					objPtr->Destroy();
+				});
 		}
 	}
 }
