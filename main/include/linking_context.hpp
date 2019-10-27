@@ -7,7 +7,7 @@
 
 
 using networkID = uint32_t;
-using ptrGameObjt = std::shared_ptr<GameObject>;
+using ptrGameObjt = GameObject*;
 
 class LinkingContext
 {

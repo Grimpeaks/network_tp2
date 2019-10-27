@@ -43,16 +43,6 @@ struct compRotation
 	uint8_t i;
 };
 
-//TODO mettre dans le replication manager !!
-using PacketTypeID = uint8_t;
-enum class PacketType : PacketTypeID
-{
-	Hello = 0x00,
-	Sync = 0x01,
-	Bye = 0x02,
-	PacketType_Max
-};
-//
 
 class GameObject
 {
