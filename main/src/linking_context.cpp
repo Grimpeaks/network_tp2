@@ -32,7 +32,7 @@ std::optional<networkID> LinkingContext::GetNetworkId(ptrGameObjt inGameObject)
 	{ 
 		return res->second; 
 	}
-	return {};
+	return std::nullopt;
 }
 
 	
@@ -45,5 +45,5 @@ std::optional<ptrGameObjt> LinkingContext::GetGameObject(networkID inNetworkId)
 		return res->second;
 	}
 
-	return {};	
+	return std::nullopt;
 }

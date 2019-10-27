@@ -1,4 +1,5 @@
 #include "class_registry.hpp"
+Classregistry* Classregistry::m_registre = 0;
 
 Classregistry* Classregistry::get_Instance()
 {
@@ -8,10 +9,11 @@ Classregistry* Classregistry::get_Instance()
 	return m_registre;
 }
 
-GameObject Classregistry::Create(ReplicationClassID id)
+GameObject* Classregistry::Create(ReplicationClassID id)
 {
-	std::function<GameObject()> fct = this->m_map_id_TO_ptrfunction.at(id);
-	return fct();
+	std::function<GameObject*()> fct = this->m_map_id_TO_ptrfunction.at(id);
+	GameObject* obj = fct();
+	return obj;
 }
 
 template < typename T >
