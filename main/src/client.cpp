@@ -3,13 +3,13 @@
 Client::Client()
 {
 	conn("127.0.0.1", 4242);
-	this->m_ClientThread = std::make_unique<std::thread>([this]() { m_loop->run(); });
+	m_ClientThread = std::make_unique<std::thread>([this]() { m_loop->run(); });
 }
 
 Client::Client(std::string IP, int port)
 {
 	conn(IP, port);
-	this->m_ClientThread = std::make_unique<std::thread>([this]() { m_loop->run(); });
+	m_ClientThread = std::make_unique<std::thread>([this]() { m_loop->run(); });
 }
 
 Client::~Client()
@@ -34,8 +34,10 @@ void Client::conn(std::string IP, int port) {
 		////
 		});
 
-	m_tcp->on<uvw::DataEvent>([](const uvw::DataEvent& evt, uvw::TCPHandle&) {
-		std::cout << evt.data << std::endl;
+	m_tcp->on<uvw::DataEvent>([this](const uvw::DataEvent& evt, uvw::TCPHandle&) {
+		gsl::span<char> receivedData(evt.data.get(), evt.length);
+		InputStream receivedStream(receivedData);
+		m_replicationManager.Replicate(receivedStream);
 		});
 
 	m_tcp->connect(IP, port);

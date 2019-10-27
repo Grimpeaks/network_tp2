@@ -1,17 +1,18 @@
 #include "replication_manager.hpp"
 
 void ReplicationManager::Replicate(OutputStream& stream, std::vector<ptrGameObjt> list_goptr) {
-	stream.Write(this->m_protocolID);
-	auto type = to_integral(PacketType::Sync);
-	stream.Write(type);
+	stream.Write<ProtocoleID>(this->m_protocolID);
+	PacketType type = PacketType::Sync;
+	stream.Write<PacketType>(type);
 	for (auto game_objt : list_goptr) {
 		auto objectID = m_linkingContext.GetNetworkId(game_objt);
-		if (objectID.has_value()) {
-			continue;
+		if (!objectID.has_value()) {
+			m_linkingContext.AddTo_Context(reinterpret_cast<GameObject*>(game_objt));
+			auto objectID = m_linkingContext.GetNetworkId(game_objt);
 		}
-		stream.Write(*objectID);
+		stream.Write<networkID>(objectID.value());
 		auto classID = game_objt->ClassID();
-		stream.Write(classID);
+		stream.Write<ReplicationClassID>(classID);
 		game_objt->Write(stream);
 	}
 }

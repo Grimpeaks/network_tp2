@@ -40,6 +40,11 @@ void Enemy::Read(InputStream& inStream)
 	compressedRotation.c = inStream.Read<uint16_t>();
 	compressedRotation.i = inStream.Read<uint8_t>();
 	enemyRot = unpackRotation(compressedRotation);
+
+	std::cout << "Enemy : \n"
+		<< name << "\n"
+		<< enemyPos.x << "," << enemyPos.y << "," << enemyPos.z << "\n"
+		<< enemyRot.x << "," << enemyRot.y << "," << enemyRot.z << "\n" << enemyRot.w << std::endl;
 }
 
 uint32_t Enemy::packFloatPos(float floatVal)
@@ -54,7 +59,7 @@ uint32_t Enemy::packFloatPos(float floatVal)
 float Enemy::unpackFloatPos(uint32_t val)
 {
 	int signedVal;
-	signedVal = val - 50000;
+	signedVal = val - 500000;
 	float floatVal;
 	floatVal = (float)signedVal / 1000.0;
 	return floatVal;
@@ -66,7 +71,7 @@ uint16_t Enemy::packFloatRot(float floatVal)
 	if (compression > 1000) { compression = 1000; }
 	else if (compression < -1000) { compression = -1000; }
 	compression += 1000;
-	return compression;
+	return static_cast<uint16_t>(compression);
 }
 
 
@@ -84,87 +89,86 @@ compRotation Enemy::packRotation(rotation structQuat)
 	compRotation compressedRotation;
 	std::vector<float> quaternion = { structQuat.x, structQuat.y, structQuat.z, structQuat.w };
 	float maxValue = std::numeric_limits<float>::min();
-	char maxIndex = 0;
+	uint8_t maxIndex = 0;
 	float sign = 1;
 
 
 	for (int i = 0; i < 4; i++)
 	{
 		float element = quaternion[i];
-		float absolute = abs(quaternion[i]);
-		if (absolute > maxValue)
+		if (element > maxValue)
 		{
-			sign = (element < 0) ? -1 : 1;
 			maxIndex = i;
-			maxValue = absolute;
+			maxValue = element;
 		}
 	}
 
 	if (maxIndex == 0)
 	{
-		compressedRotation.a = (packFloatRot(quaternion.at(1) * sign));
-		compressedRotation.b = (packFloatRot(quaternion.at(2) * sign));
-		compressedRotation.c = (packFloatRot(quaternion.at(3) * sign));
+		compressedRotation.a = (packFloatRot(quaternion.at(1)));
+		compressedRotation.b = (packFloatRot(quaternion.at(2)));
+		compressedRotation.c = (packFloatRot(quaternion.at(3)));
 	}
 	else if (maxIndex == 1)
 	{
-		compressedRotation.a = (packFloatRot(quaternion.at(0) * sign));
-		compressedRotation.b = (packFloatRot(quaternion.at(2) * sign));
-		compressedRotation.c = (packFloatRot(quaternion.at(3) * sign));
+		compressedRotation.a = (packFloatRot(quaternion.at(0)));
+		compressedRotation.b = (packFloatRot(quaternion.at(2)));
+		compressedRotation.c = (packFloatRot(quaternion.at(3)));
 	}
 	else if (maxIndex == 2)
 	{
-		compressedRotation.a = (packFloatRot(quaternion.at(0) * sign));
-		compressedRotation.b = (packFloatRot(quaternion.at(1) * sign));
-		compressedRotation.c = (packFloatRot(quaternion.at(3) * sign));
+		compressedRotation.a = (packFloatRot(quaternion.at(0)));
+		compressedRotation.b = (packFloatRot(quaternion.at(1)));
+		compressedRotation.c = (packFloatRot(quaternion.at(3)));
 	}
 	else
 	{
-		compressedRotation.a = (packFloatRot(quaternion.at(0) * sign));
-		compressedRotation.b = (packFloatRot(quaternion.at(1) * sign));
-		compressedRotation.c = (packFloatRot(quaternion.at(2) * sign));
+		compressedRotation.a = (packFloatRot(quaternion.at(0)));
+		compressedRotation.b = (packFloatRot(quaternion.at(1)));
+		compressedRotation.c = (packFloatRot(quaternion.at(2)));
 	}
 	compressedRotation.i = maxIndex;
+
 	return compressedRotation;
 }
 
 rotation Enemy::unpackRotation(compRotation compressedRotation)
 {
-	char maxIndex = compressedRotation.i;
+	int maxIndex = compressedRotation.i;
 
-	float a = (float)unpackFloatRot(compressedRotation.a);
-	float b = (float)unpackFloatRot(compressedRotation.b);
-	float c = (float)unpackFloatRot(compressedRotation.c);
-	float d = sqrt(1.0 - (a * a + b * b + c * c));
+	float a = unpackFloatRot(compressedRotation.a);
+	float b = unpackFloatRot(compressedRotation.b);
+	float c = unpackFloatRot(compressedRotation.c);
+	float d = sqrt(1.0f - (a * a + b * b + c * c));
 
 	rotation rot;
 	if (maxIndex == 0)
 	{
 		rot.x = d;
-		rot.x = a;
-		rot.x = b;
-		rot.x = c;
+		rot.y = a;
+		rot.z = b;
+		rot.w = c;
 		return rot;
 	}
 	else if (maxIndex == 1)
 	{
 		rot.x = a;
-		rot.x = d;
-		rot.x = b;
-		rot.x = c;
+		rot.y = d;
+		rot.z = b;
+		rot.w = c;
 		return rot;
 	}
 	else if (maxIndex == 2)
 	{
 		rot.x = a;
-		rot.x = b;
-		rot.x = d;
-		rot.x = c;
+		rot.y = b;
+		rot.z = d;
+		rot.w = c;
 		return rot;
 	}
 	rot.x = a;
-	rot.x = b;
-	rot.x = c;
-	rot.x = d;
+	rot.y = b;
+	rot.z = c;
+	rot.w = d;
 	return rot;
 }

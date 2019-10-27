@@ -49,9 +49,9 @@ class GameObject
 public:
 	REPLICATED('GOBJ', GameObject)
 
-	virtual void Destroy();
-	virtual void Write(OutputStream&);
-	virtual void Read(InputStream&);
+	virtual void Destroy() {};
+	virtual void Write(OutputStream&) {};
+	virtual void Read(InputStream&) {};
 
 private:
 	

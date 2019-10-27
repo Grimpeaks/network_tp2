@@ -99,6 +99,12 @@ void Player::Read(InputStream& inStream)
 		compressedRotation.c = inStream.Read<uint16_t>();
 		compressedRotation.i = inStream.Read<uint8_t>();
 		playerRot = unpackRotation(compressedRotation);
+
+
+		std::cout << "Player : \n"
+			<< name << "\n"
+			<< playerPos.x << "," << playerPos.y << "," << playerPos.z << "\n"
+			<< playerRot.x << "," << playerRot.y << "," << playerRot.z << "\n" << playerRot.w << std::endl;
 }
 
 //uint32_t Player::bytesToInt32(gsl::span<std::byte> bytes) //////////////////////////////////////////////////////////////////
@@ -125,7 +131,7 @@ uint32_t Player::packFloatPos(float floatVal)
 float Player::unpackFloatPos(uint32_t val)
 {
 	int signedVal;
-	signedVal = val - 50000;
+	signedVal = val - 500000;
 	float floatVal;
 	floatVal = (float)signedVal / 1000.0;
 	return floatVal;
@@ -138,7 +144,7 @@ uint16_t Player::packFloatRot(float floatVal)
 	if (compression > 1000) { compression = 1000; }
 	else if (compression < -1000) { compression = -1000; }
 	compression += 1000;
-	return compression;
+	return static_cast<uint16_t>(compression);
 }
 
 float Player::unpackFloatRot(uint16_t val)
@@ -155,45 +161,41 @@ compRotation Player::packRotation(rotation structQuat)
 	compRotation compressedRotation;
 	std::vector<float> quaternion = { structQuat.x, structQuat.y, structQuat.z, structQuat.w };
 	float maxValue = std::numeric_limits<float>::min();
-	char maxIndex = 0;
-	float sign = 1;
-
+	uint8_t maxIndex = 0;
 
 	for (int i = 0; i < 4; i++)
 	{
 		float element = quaternion[i];
-		float absolute = abs(quaternion[i]);
-		if (absolute > maxValue)
+		if (element > maxValue)
 		{
-			sign = (element < 0) ? -1 : 1;
 			maxIndex = i;
-			maxValue = absolute;
+			maxValue = element;
 		}
 	}
 
 	if (maxIndex == 0)
 	{
-		compressedRotation.a = (packFloatRot(quaternion.at(1) * sign));
-		compressedRotation.b = (packFloatRot(quaternion.at(2) * sign));
-		compressedRotation.c = (packFloatRot(quaternion.at(3) * sign));
+		compressedRotation.a = (packFloatRot(quaternion.at(1)));
+		compressedRotation.b = (packFloatRot(quaternion.at(2)));
+		compressedRotation.c = (packFloatRot(quaternion.at(3)));
 	}
 	else if (maxIndex == 1)
 	{
-		compressedRotation.a = (packFloatRot(quaternion.at(0) * sign));
-		compressedRotation.b = (packFloatRot(quaternion.at(2) * sign));
-		compressedRotation.c = (packFloatRot(quaternion.at(3) * sign));
+		compressedRotation.a = (packFloatRot(quaternion.at(0)));
+		compressedRotation.b = (packFloatRot(quaternion.at(2)));
+		compressedRotation.c = (packFloatRot(quaternion.at(3)));
 	}
 	else if (maxIndex == 2)
 	{
-		compressedRotation.a = (packFloatRot(quaternion.at(0) * sign));
-		compressedRotation.b = (packFloatRot(quaternion.at(1) * sign));
-		compressedRotation.c = (packFloatRot(quaternion.at(3) * sign));
+		compressedRotation.a = (packFloatRot(quaternion.at(0)));
+		compressedRotation.b = (packFloatRot(quaternion.at(1)));
+		compressedRotation.c = (packFloatRot(quaternion.at(3)));
 	}
 	else
 	{
-		compressedRotation.a = (packFloatRot(quaternion.at(0) * sign));
-		compressedRotation.b = (packFloatRot(quaternion.at(1) * sign));
-		compressedRotation.c = (packFloatRot(quaternion.at(2) * sign));
+		compressedRotation.a = (packFloatRot(quaternion.at(0)));
+		compressedRotation.b = (packFloatRot(quaternion.at(1)));
+		compressedRotation.c = (packFloatRot(quaternion.at(2)));
 	}
 	compressedRotation.i = maxIndex;
 	return compressedRotation;
@@ -201,41 +203,41 @@ compRotation Player::packRotation(rotation structQuat)
 
 rotation Player::unpackRotation(compRotation compressedRotation)
 {
-	char maxIndex = compressedRotation.i;
+	uint8_t maxIndex = compressedRotation.i;
 
-	float a = (float)unpackFloatRot(compressedRotation.a);
-	float b = (float)unpackFloatRot(compressedRotation.b);
-	float c = (float)unpackFloatRot(compressedRotation.c);
+	float a = unpackFloatRot(compressedRotation.a);
+	float b = unpackFloatRot(compressedRotation.b);
+	float c = unpackFloatRot(compressedRotation.c);
 	float d = sqrt(1.0 - (a * a + b * b + c * c));
 
 	rotation rot;
 	if (maxIndex == 0)
 	{
 		rot.x = d;
-		rot.x = a;
-		rot.x = b;
-		rot.x = c;
+		rot.y = a;
+		rot.z = b;
+		rot.w = c;
 		return rot;
 	}
 	else if (maxIndex == 1)
 	{
 		rot.x = a;
-		rot.x = d;
-		rot.x = b;
-		rot.x = c;
+		rot.y = d;
+		rot.z = b;
+		rot.w = c;
 		return rot;
 	}
 	else if (maxIndex == 2)
 	{
 		rot.x = a;
-		rot.x = b;
-		rot.x = d;
-		rot.x = c;
+		rot.y = b;
+		rot.z = d;
+		rot.w = c;
 		return rot;
 	}
 	rot.x = a;
-	rot.x = b;
-	rot.x = c;
-	rot.x = d;
+	rot.y = b;
+	rot.z = c;
+	rot.w = d;
 	return rot;
 }

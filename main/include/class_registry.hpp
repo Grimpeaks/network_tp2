@@ -6,12 +6,17 @@
 class Classregistry
 {
 public:
+	Classregistry() = default;
 	static Classregistry* get_Instance();
 	GameObject* Create(ReplicationClassID id);
+
 	template < typename T >
-	void RegistreClasse(T theClass);
+	void RegisterClasse()
+	{
+		this->m_map_id_TO_ptrfunction.insert(std::pair<ReplicationClassID, std::function<GameObject * ()>>(T::mClassID, T::CreateInstance));
+	}
+
 private:
 	static Classregistry* m_registre;
-	Classregistry();
-	std::map <ReplicationClassID, std::function<GameObject*()> > m_map_id_TO_ptrfunction;
+	std::map <ReplicationClassID, std::function<GameObject * ()>> m_map_id_TO_ptrfunction;
 };

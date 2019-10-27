@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iomanip>
+#include <iostream>
 #include <string>
 #include <vector>
 #include <cstddef>
@@ -7,19 +9,18 @@
 
 #include "game_object.hpp"
 
-class Player : GameObject
+class Player : public GameObject
 {
 public:
+	Player() = default;
 	REPLICATED('PLAY', Player)
 	void Write(OutputStream&) override;
 	void Read(InputStream&) override;
 
 private:
-	Player();
-
 	std::string name = "NoNamePlayer";
-	position playerPos = { 0,0,0 };
-	rotation playerRot = { 0,0,0,0 };
+	position playerPos = { 1.2,3.4,5.6 };
+	rotation playerRot = { -0.016,-0.361,0.855,-0.373 };
 
 	uint32_t packFloatPos(float);
 	uint16_t packFloatRot(float);
