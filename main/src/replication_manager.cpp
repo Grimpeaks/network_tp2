@@ -41,19 +41,28 @@ void ReplicationManager::Replicate(InputStream& stream) {
 				}
 			}
 
-			std::vector<ptrGameObjt> removedObjects;
+			std::vector<ptrGameObjt> removedObjects(set_StreamObjs.size());
 			std::remove_copy_if(m_set.begin(), m_set.end(), removedObjects.begin(),
 				[set_StreamObjs](ptrGameObjt objPtr)
 				{
-					return (set_StreamObjs.find<ptrGameObjt>(objPtr) != set_StreamObjs.end());
+					const auto pos = std::find_if(
+						set_StreamObjs.begin(),
+						set_StreamObjs.end(),
+						[objPtr](GameObject* vecObj) -> bool { return vecObj == objPtr; }
+					);
+					return (pos != set_StreamObjs.end());
 				});
 
 			std::for_each(removedObjects.begin(), removedObjects.end(),
 				[this](ptrGameObjt objPtr)
 				{
-					m_set.erase(objPtr);
-					m_linkingContext.SupprFrom_List(objPtr);
-					objPtr->Destroy();
+					if (objPtr != nullptr)
+					{
+						m_set.erase(objPtr);
+						m_linkingContext.SupprFrom_List(objPtr);
+						objPtr->Destroy();
+						delete objPtr;
+					}
 				});
 		}
 	}

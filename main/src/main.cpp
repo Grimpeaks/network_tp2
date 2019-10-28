@@ -46,6 +46,14 @@ int main(int argc, char* argv[])
 		OutputStream streamToSend;
 		m_replicationManager.Replicate(streamToSend, objPtrVector);
 		tcpServer.Send(reinterpret_cast<uint8_t*>(streamToSend.Data().data()), streamToSend.Size());
+
+		std::cin.ignore();
+		streamToSend.Flush();
+		const auto toDelete = objPtrVector[0];
+		objPtrVector.erase(objPtrVector.begin());
+		m_replicationManager.Replicate(streamToSend, objPtrVector);
+		m_replicationManager.m_linkingContext.SupprFrom_List(toDelete);
+		tcpServer.Send(reinterpret_cast<uint8_t*>(streamToSend.Data().data()), streamToSend.Size());
 	}
 	else
 	{
