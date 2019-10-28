@@ -208,7 +208,7 @@ rotation Player::unpackRotation(compRotation compressedRotation)
 	float a = unpackFloatRot(compressedRotation.a);
 	float b = unpackFloatRot(compressedRotation.b);
 	float c = unpackFloatRot(compressedRotation.c);
-	float d = sqrt(1.0 - (a * a + b * b + c * c));
+	float d = std::sqrt(1.0 - (a * a + b * b + c * c));
 
 	rotation rot;
 	if (maxIndex == 0)
