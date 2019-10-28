@@ -47,8 +47,8 @@ int main(int argc, char* argv[])
 
 		std::cin.ignore();
 		streamToSend.Flush();
-		const auto toDelete = objPtrVector[0];
-		objPtrVector.erase(objPtrVector.begin());
+		const auto toDelete = objPtrVector.begin();
+		objPtrVector.erase(toDelete);
 		m_replicationManager.Replicate(streamToSend, objPtrVector);
 		tcpServer.Send(reinterpret_cast<uint8_t*>(streamToSend.Data().data()), streamToSend.Size());
 	}
