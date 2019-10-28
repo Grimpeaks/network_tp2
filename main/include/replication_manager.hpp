@@ -24,11 +24,11 @@ class ReplicationManager
 public:
 	void Replicate(OutputStream& stream, std::vector<ptrGameObjt> list_goptr);
 	void Replicate(InputStream& stream);
-	LinkingContext m_linkingContext;
 
 private:
 	ProtocoleID m_protocolID = 0x4EDC7489;
 	std::unordered_set<ptrGameObjt> m_set;
+	LinkingContext m_linkingContext;
 	
 	Classregistry* m_classRegistry = Classregistry::get_Instance();
 };

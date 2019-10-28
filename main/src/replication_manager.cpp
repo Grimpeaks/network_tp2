@@ -8,7 +8,7 @@ void ReplicationManager::Replicate(OutputStream& stream, std::vector<ptrGameObjt
 		auto objectID = m_linkingContext.GetNetworkId(game_objt);
 		if (!objectID.has_value()) {
 			m_linkingContext.AddTo_Context(reinterpret_cast<GameObject*>(game_objt));
-			auto objectID = m_linkingContext.GetNetworkId(game_objt);
+			objectID = m_linkingContext.GetNetworkId(game_objt);
 		}
 		stream.Write<networkID>(objectID.value());
 		auto classID = game_objt->ClassID();

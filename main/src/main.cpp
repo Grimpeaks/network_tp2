@@ -40,8 +40,6 @@ int main(int argc, char* argv[])
 		Enemy* enemyPtr = reinterpret_cast<Enemy*>(m_classRegistry->Create('ENEM'));
 		objPtrVector.push_back(reinterpret_cast<GameObject*>(enemyPtr));
 		objPtrVector.push_back(reinterpret_cast<GameObject*>(playerPtr));
-		m_replicationManager.m_linkingContext.AddTo_Context(reinterpret_cast<GameObject*>(enemyPtr));
-		m_replicationManager.m_linkingContext.AddTo_Context(reinterpret_cast<GameObject*>(playerPtr));
 
 		OutputStream streamToSend;
 		m_replicationManager.Replicate(streamToSend, objPtrVector);
@@ -49,10 +47,9 @@ int main(int argc, char* argv[])
 
 		std::cin.ignore();
 		streamToSend.Flush();
-		const auto toDelete = objPtrVector[0];
-		objPtrVector.erase(objPtrVector.begin());
+		const auto toDelete = objPtrVector.begin();
+		objPtrVector.erase(toDelete);
 		m_replicationManager.Replicate(streamToSend, objPtrVector);
-		m_replicationManager.m_linkingContext.SupprFrom_List(toDelete);
 		tcpServer.Send(reinterpret_cast<uint8_t*>(streamToSend.Data().data()), streamToSend.Size());
 	}
 	else
