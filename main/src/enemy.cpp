@@ -44,7 +44,7 @@ void Enemy::Read(InputStream& inStream)
 	std::cout << "Enemy : \n"
 		<< name << "\n"
 		<< enemyPos.x << "," << enemyPos.y << "," << enemyPos.z << "\n"
-		<< enemyRot.x << "," << enemyRot.y << "," << enemyRot.z << "\n" << enemyRot.w << std::endl;
+		<< enemyRot.x << "," << enemyRot.y << "," << enemyRot.z << "," << enemyRot.w << std::endl;
 }
 
 uint32_t Enemy::packFloatPos(float floatVal)

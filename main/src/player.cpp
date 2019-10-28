@@ -104,7 +104,7 @@ void Player::Read(InputStream& inStream)
 		std::cout << "Player : \n"
 			<< name << "\n"
 			<< playerPos.x << "," << playerPos.y << "," << playerPos.z << "\n"
-			<< playerRot.x << "," << playerRot.y << "," << playerRot.z << "\n" << playerRot.w << std::endl;
+			<< playerRot.x << "," << playerRot.y << "," << playerRot.z << "," << playerRot.w << std::endl;
 }
 
 //uint32_t Player::bytesToInt32(gsl::span<std::byte> bytes) //////////////////////////////////////////////////////////////////
