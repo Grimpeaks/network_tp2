@@ -14,7 +14,7 @@ class MemoryStream
 public:
     MemoryStream() : m_cursor(0)
     {
-        m_buffer.reserve(64);
+        m_buffer.reserve(1024);
     }
 
     void Write(gsl::not_null<void*> data, size_t length);

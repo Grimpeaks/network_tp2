@@ -25,6 +25,6 @@ private:
 	std::map<networkID, ptrGameObjt> idToObjptr;
 	std::map<ptrGameObjt, networkID> objptrToId;
 	
-	int indice = 0;
+	int indice = -1;
 	
 };

@@ -3,13 +3,13 @@
 Server::Server()
 {
 	listen("127.0.0.1", 4242);
-	this->m_ServerThread = std::make_unique<std::thread>([this]() { m_loop->run(); });
+	m_ServerThread = std::make_unique<std::thread>([this]() { m_loop->run(); });
 }
 
 Server::Server(std::string IP, int port)
 {
 	listen(IP, port);
-	this->m_ServerThread = std::make_unique<std::thread>([this]() { m_loop->run(); });
+	m_ServerThread = std::make_unique<std::thread>([this]() { m_loop->run(); });
 }
 
 Server::~Server()

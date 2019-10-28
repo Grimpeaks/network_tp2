@@ -1,17 +1,18 @@
 #include "replication_manager.hpp"
 
 void ReplicationManager::Replicate(OutputStream& stream, std::vector<ptrGameObjt> list_goptr) {
-	stream.Write(this->m_protocolID);
-	auto type = to_integral(PacketType::Sync);
-	stream.Write(type);
+	stream.Write<ProtocoleID>(this->m_protocolID);
+	PacketType type = PacketType::Sync;
+	stream.Write<PacketType>(type);
 	for (auto game_objt : list_goptr) {
 		auto objectID = m_linkingContext.GetNetworkId(game_objt);
-		if (objectID.has_value()) {
-			continue;
+		if (!objectID.has_value()) {
+			m_linkingContext.AddTo_Context(reinterpret_cast<GameObject*>(game_objt));
+			auto objectID = m_linkingContext.GetNetworkId(game_objt);
 		}
-		stream.Write(*objectID);
+		stream.Write<networkID>(objectID.value());
 		auto classID = game_objt->ClassID();
-		stream.Write(classID);
+		stream.Write<ReplicationClassID>(classID);
 		game_objt->Write(stream);
 	}
 }
@@ -40,19 +41,28 @@ void ReplicationManager::Replicate(InputStream& stream) {
 				}
 			}
 
-			std::vector<ptrGameObjt> removedObjects;
+			std::vector<ptrGameObjt> removedObjects(set_StreamObjs.size());
 			std::remove_copy_if(m_set.begin(), m_set.end(), removedObjects.begin(),
 				[set_StreamObjs](ptrGameObjt objPtr)
 				{
-					return (set_StreamObjs.find<ptrGameObjt>(objPtr) != set_StreamObjs.end());
+					const auto pos = std::find_if(
+						set_StreamObjs.begin(),
+						set_StreamObjs.end(),
+						[objPtr](GameObject* vecObj) -> bool { return vecObj == objPtr; }
+					);
+					return (pos != set_StreamObjs.end());
 				});
 
 			std::for_each(removedObjects.begin(), removedObjects.end(),
 				[this](ptrGameObjt objPtr)
 				{
-					m_set.erase(objPtr);
-					m_linkingContext.SupprFrom_List(objPtr);
-					objPtr->Destroy();
+					if (objPtr != nullptr)
+					{
+						m_set.erase(objPtr);
+						m_linkingContext.SupprFrom_List(objPtr);
+						objPtr->Destroy();
+						delete objPtr;
+					}
 				});
 		}
 	}
