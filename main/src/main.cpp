@@ -1,46 +1,62 @@
 #include <iostream>
+#include <string>
+#include <vector>
 
-#include <uvw.hpp>
-#include <memory>
+#include "client.hpp"
+#include "server.hpp"
+#include "replication_manager.hpp"
+#include "class_registry.hpp"
+#include "game_object.hpp"
+#include "player.hpp"
+#include "enemy.hpp"
 
-void listen(uvw::Loop &loop) {
-    std::shared_ptr<uvw::TCPHandle> tcp = loop.resource<uvw::TCPHandle>();
+int main(int argc, char* argv[])
+{
+	std::string programType = argv[1];
+	std::string IP = argv[2];
+	int port = std::stoi(argv[3]);
 
-    tcp->once<uvw::ListenEvent>([](const uvw::ListenEvent &, uvw::TCPHandle &srv) {
-        std::shared_ptr<uvw::TCPHandle> client = srv.loop().resource<uvw::TCPHandle>();
+	std::cout << "Starting the " << programType << std::endl
+		<< "IP : " << IP << std::endl
+		<< "Port : " << port << std::endl;
+		
+	Classregistry* m_classRegistry = Classregistry::get_Instance();
+	m_classRegistry->RegisterClasse<Player>();
+	m_classRegistry->RegisterClasse<Enemy>();
 
-        client->on<uvw::CloseEvent>([ptr = srv.shared_from_this()](const uvw::CloseEvent &, uvw::TCPHandle &) { ptr->close(); });
-        client->on<uvw::EndEvent>([](const uvw::EndEvent &, uvw::TCPHandle &client) { client.close(); });
+	if (programType == "client")
+	{
+		Client tcpClient(IP, port);
+	}
+	else if (programType == "server")
+	{
+		Server tcpServer(IP, port);
+		ReplicationManager m_replicationManager;
 
-        srv.accept(*client);
-        client->read();
-    });
+		std::cin.ignore();
 
-    tcp->bind("127.0.0.1", 4242);
-    tcp->listen();
-}
+		std::vector<GameObject*> objPtrVector;
+		Player* playerPtr = reinterpret_cast<Player*>(m_classRegistry->Create('PLAY'));
+		Enemy* enemyPtr = reinterpret_cast<Enemy*>(m_classRegistry->Create('ENEM'));
+		objPtrVector.push_back(reinterpret_cast<GameObject*>(enemyPtr));
+		objPtrVector.push_back(reinterpret_cast<GameObject*>(playerPtr));
+		m_replicationManager.m_linkingContext.AddTo_Context(reinterpret_cast<GameObject*>(enemyPtr));
+		m_replicationManager.m_linkingContext.AddTo_Context(reinterpret_cast<GameObject*>(playerPtr));
 
-void conn(uvw::Loop &loop) {
-    auto tcp = loop.resource<uvw::TCPHandle>();
+		OutputStream streamToSend;
+		m_replicationManager.Replicate(streamToSend, objPtrVector);
+		tcpServer.Send(reinterpret_cast<uint8_t*>(streamToSend.Data().data()), streamToSend.Size());
 
-    tcp->on<uvw::ErrorEvent>([](const uvw::ErrorEvent &, uvw::TCPHandle &) { /* handle errors */ });
-
-    tcp->on<uvw::ConnectEvent>([](const uvw::ConnectEvent &, uvw::TCPHandle &tcp) {
-        auto dataWrite = std::unique_ptr<char[]>(new char[2]{ 'b', 'c' });
-        tcp.write(std::move(dataWrite), 2);
-        tcp.close();
-    });
-
-    tcp->on<uvw::DataEvent>([](const uvw::DataEvent& evt, uvw::TCPHandle &){
-        std::cout << evt.data << std::endl;
-    });
-
-    tcp->connect(std::string{"127.0.0.1"}, 4242);
-}
-
-int main() {
-    auto loop = uvw::Loop::getDefault();
-    listen(*loop);
-    conn(*loop);
-    loop->run();
+		std::cin.ignore();
+		streamToSend.Flush();
+		const auto toDelete = objPtrVector[0];
+		objPtrVector.erase(objPtrVector.begin());
+		m_replicationManager.Replicate(streamToSend, objPtrVector);
+		m_replicationManager.m_linkingContext.SupprFrom_List(toDelete);
+		tcpServer.Send(reinterpret_cast<uint8_t*>(streamToSend.Data().data()), streamToSend.Size());
+	}
+	else
+	{
+		std::cout << "L'argument 1 du main doit etre : client ou server" << std::endl;
+	}
 }

@@ -21,13 +21,14 @@ void MemoryStream::WriteStr(const std::string& data)
 
 std::string MemoryStream::ReadStr()
 {
-    uint16_t strSize = Read<uint16_t>();
-    auto str = Read(strSize);
-    std::string output;
+	uint16_t strSize = Read<uint16_t>();
+	auto str = Read(strSize);
+	std::vector<char> buffer(strSize);
 
-    std::transform(str.begin(), str.end(), output.begin(), [](std::byte b){ return (char)b; });
+	std::transform(str.begin(), str.end(), buffer.begin(), [](std::byte b) { return (char)b; });
+	std::string output(buffer.begin(), buffer.end());
 
-    return output;
+	return output;
 }
 
 void MemoryStream::Write(gsl::span<const char> data)
