@@ -1,7 +1,10 @@
 #pragma once
 
-#include <string>
 #include <iostream>
+#include <string>
+#include <vector>
+#include <cstddef>
+#include <cmath>
 
 #include "game_object.hpp"
 

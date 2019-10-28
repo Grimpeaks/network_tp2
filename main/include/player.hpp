@@ -1,11 +1,10 @@
 #pragma once
 
-#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <cstddef>
-#include <math.h>
+#include <cmath>
 
 #include "game_object.hpp"
 
